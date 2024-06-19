@@ -65,7 +65,7 @@ const Profile = () => {
             title: title,
             description:description,
             dueDate:dueDate,
-            completed:false
+            completed:status
         }
     }
 
@@ -93,88 +93,109 @@ const Profile = () => {
     }
 
 const handleStatus=async(index)=>{
+    
     setStatus(!status)
+    const newTodos=[...todos]
+    newTodos[index].completed=status
+    setTodos(newTodos)
     const res = await axios.put("http://localhost:3001/update_todo_status",{email:user.email,index:index,completed:status})
     if(res.status===200)
         {
             alert("Status updated successfully")
         }
-    const newTodos=[...todos]
-    newTodos[index].completed=status
-    setTodos(newTodos)
+  
 }
     return (
       currentUser && (
-        <div className='flex flex-col text-2xl items-center'>        
-          <h1>Logged in as {currentUser.email}</h1>
-          <h1 className='mb-12'>Welcome back {currentUser.username}</h1> 
+        <div className='bg-indigo-500 h-full w-full p-2 xs:w-2/3 sm:w-1/2 md:w-2/5 lg:w-1/4 xl:w-1/5 '>        
 
-            <div className='bg-[#9CA3AF] rounded-xl my-4 w-fit p-4 mx-auto space-y-2'>
-                <div className='flex flex-row'>
-                    <h2>Title </h2>
-                    <input className='rounded-xl mx-2 p-1 ml-auto'
-                    onChange={(e)=>setTitle(e.target.value)}
-                    value={title}
-                    /> 
-                </div>
-                
-                <div className='flex flex-row my-2 space-x-2  '>
-                    <h2>Description </h2>
-                    <textarea className='ml-auto rounded-xl mx-2 p-1' 
-                    type='text'
-                    onChange={(e)=>setDescription(e.target.value)}
-                    value={description}
-                    /> 
-                </div>
-                
-                <div className='flex flex-row'>
-                    <h2>Date </h2>
-                    <input className='mx-auto rounded-xl mx-2 p-1' 
-                    type="date"
-                    onChange={(e)=>setDueDate(e.target.value)}
-                    value={dueDate}
-                    /> 
-                </div>
-            </div>
-         <button className='bg-[#16a34a] p-2 rounded-xl'
-         onClick={handleTodos}
-         >
-            Save Changes
-         </button>
-          {
-            todos.map((todo,index)=>(
-                
-              <div key={index} className='flex flex-col my-8 bg-[#7DD3FC] rounded-lg w-fit mx-auto p-4 text-3xl'>
-                
-                <div className='flex flex-row'>
-                    <h2><span className="font-bold">Title: </span>{todo.title}</h2>
-                    <span className='ml-auto w-auto text-[#991B1B] text-2xl font-extrabold' onClick={()=>removeTodo(index)}>X</span>
-                </div>
+          <div className='bg-white rounded-xl m-2 flex flex-col items-center '>
+            
+            <h1 className='text-xl sm:text-2xl md:text-3xl  lg:text-5xl p-4 font-light text-neutral-500 mr-auto'>Welcome back</h1> 
+            <span className='text-4xl sm:text-3xl md:text-5xl  lg:text-7xl p-4 text-neutral-800 font-bold  mr-auto'>{currentUser.username}</span>
+              
+            
+              <div className='rounded-xl my-8 w-auto lg:w-3/4 p-6 mx-auto space-y-2 shadow-xl shadow-stone-500/50'>
+                   <div className="flex-col space-y-4 items-center justify-center ">
+                    <div className="relative">
+                        <h2 className='text-sm text-indigo-500'>
+                        Title
+                        </h2>
 
-                <h2><span className="font-bold">Description: </span>{todo.description}</h2>
-                <h2><span className="font-bold">Due Date: </span>{todo.dueDate}</h2>
-                
-                <div className='flex flex-row'>
-                   
-                    <h2 className='font-bold'>Status: </h2>
-                    <input type='checkbox'
-                    onClick={()=>{handleStatus(index)}}
-                    onChange={(e)=>setStatus(e.target.checked)}
-                    checked={todo.completed}
-                    className='mx-8 w-8 h-8 mx-2 p-4' 
-                    />     
-                </div>
+                       <input
+                        type="text"
+                        className="border-b border-gray-300 py-1 text-xl focus:border-b-2 focus:border-indigo-500 transition-colors focus:outline-none peer bg-inherit"
+                        onChange={(e)=>setTitle(e.target.value)}
+                        value={title}
+                        />
+                    </div>
 
+                    <div className="relative">
+                        <h2 className='text-sm text-indigo-500'>
+                        Description
+                        </h2>
+
+                        <textarea
+                          type="text"
+                          className="border-b border-gray-300 py-1 text-xl w-full focus:border-b-2 focus:border-indigo-500 transition-colors focus:outline-none peer bg-inherit"
+                          onChange={(e)=>setDescription(e.target.value)}
+                          value={description}
+                        />
+                    </div>
+
+                    <input className='ml-auto rounded-xl  focus:outline-none 
+                    text-indigo-500
+                    mx-auto p-1 text-lg' 
+                      type="date"
+                      onChange={(e)=>setDueDate(e.target.value)}
+                      value={dueDate}
+                      /> 
+
+                  </div>    
               </div>
-            ))
-          }
+
+
+              
+                <button 
+                className='transition ease-in-out delay-100 hover:scale-110  text-xl duration-300
+                bg-neutral-900 text-white px-8 py-2 rounded-xl font-semibold mx-auto'
+                onClick={handleTodos}
+                >
+                   Add new Todo
+                </button>
+              
+            
+                {
+                  todos.map((todo, index) => {
+                    const localDate = new Date(todo.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+                    // ()=>setStatus(todo.completed)
+                    return (
+                      <div key={index} className='flex flex-col my-8
+                      w-80 border-2 rounded-2xl mx-2 border-zinc rounded-lg p-2'>
+                        
+                        <div className='flex flex-row'>  
+                          <h2 className="text-sm">{localDate}</h2>
+                          <span className='ml-auto text-red-600 
+                          text-2xl font-extrabold hover:cursor-pointer' onClick={() => removeTodo(index)}>X</span>
+                        </div>
+                        <h2 className="font-bold text-3xl">{todo.title}</h2>
+                        <div className='flex flex-row'>
+                          <input 
+                            type='checkbox'
+                            onClick={() => handleStatus(index)}
+                            onChange={(e) => setStatus(e.target.checked)}
+                            checked={status}
+                            className=' w-8 h-8 my-2 p-4' 
+                          />
+                          <p className='mt-2'>{todo.description}</p>
+                        </div>
+                      </div>
+                    );
+                  })
+                }
+
+          </div>
         
-          <button
-            className='bottom-0 text-white font-bold bg-blue-700 w-1/4 p-2 rounded-lg mx-auto'
-            onClick={() => auth.logout()}
-          >
-            Logout
-          </button>
         </div>
       )
     );

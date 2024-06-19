@@ -93,12 +93,10 @@ const Profile = () => {
     }
 
 const handleStatus=async(index)=>{
-    
-    setStatus(!status)
     const newTodos=[...todos]
-    newTodos[index].completed=status
+    newTodos[index].completed=!newTodos[index].completed
     setTodos(newTodos)
-    const res = await axios.put("http://localhost:3001/update_todo_status",{email:user.email,index:index,completed:status})
+    const res = await axios.put("http://localhost:3001/update_todo_status",{email:user.email,index:index,completed:newTodos[index].completed})
     if(res.status===200)
         {
             alert("Status updated successfully")
@@ -111,8 +109,8 @@ const handleStatus=async(index)=>{
 
           <div className='bg-white rounded-xl m-2 flex flex-col items-center '>
             
-            <h1 className='text-xl sm:text-2xl md:text-3xl  lg:text-5xl p-4 font-light text-neutral-500 mr-auto'>Welcome back</h1> 
-            <span className='text-4xl sm:text-3xl md:text-5xl  lg:text-7xl p-4 text-neutral-800 font-bold  mr-auto'>{currentUser.username}</span>
+            <h1 className='text-4xl sm:text-2xl md:text-3xl  lg:text-5xl p-4 font-light text-neutral-500 mr-auto'>Welcome back</h1> 
+            <span className='text-7xl sm:text-3xl md:text-5xl  lg:text-7xl p-4 text-neutral-800 font-bold  mr-auto'>{currentUser.username}</span>
               
             
               <div className='rounded-xl my-8 w-auto lg:w-3/4 p-6 mx-auto space-y-2 shadow-xl shadow-stone-500/50'>
@@ -124,7 +122,7 @@ const handleStatus=async(index)=>{
 
                        <input
                         type="text"
-                        className="border-b border-gray-300 py-1 text-xl focus:border-b-2 focus:border-indigo-500 transition-colors focus:outline-none peer bg-inherit"
+                        className="border-b border-gray-300 py-1 text-xl w-full  focus:border-b-2 focus:border-indigo-500 transition-colors focus:outline-none peer bg-inherit"
                         onChange={(e)=>setTitle(e.target.value)}
                         value={title}
                         />
@@ -168,27 +166,30 @@ const handleStatus=async(index)=>{
                 {
                   todos.map((todo, index) => {
                     const localDate = new Date(todo.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+                    if(todo.dueDate===new Date())
+                      {
+                        alert(`${todo.title} is to be completed by today`)
+                      }
                     // ()=>setStatus(todo.completed)
                     return (
                       <div key={index} className='flex flex-col my-8
-                      w-80 border-2 rounded-2xl mx-2 border-zinc rounded-lg p-2'>
+                      w-4/5 border-2 rounded-2xl mx-2 border-zinc rounded-lg p-2'>
                         
                         <div className='flex flex-row'>  
                           <h2 className="text-sm">{localDate}</h2>
                           <span className='ml-auto text-red-600 
-                          text-2xl font-extrabold hover:cursor-pointer' onClick={() => removeTodo(index)}>X</span>
+                          text-2xl font-extrabold hover:cursor-pointer' onClick={()=>removeTodo(index)}>X</span>
                         </div>
                         <h2 className="font-bold text-3xl">{todo.title}</h2>
-                        <div className='flex flex-row'>
+                     
+                        <p className='mt-2 text-xl font-light'>{todo.description}</p>
                           <input 
                             type='checkbox'
-                            onClick={() => handleStatus(index)}
-                            onChange={(e) => setStatus(e.target.checked)}
-                            checked={status}
-                            className=' w-8 h-8 my-2 p-4' 
+                            onChange={()=>handleStatus(index)}
+                            checked={todo.completed}
+                            className='w-4 h-4 my-2 rounded-xl' 
                           />
-                          <p className='mt-2'>{todo.description}</p>
-                        </div>
+                         
                       </div>
                     );
                   })

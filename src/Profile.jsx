@@ -31,25 +31,46 @@ const Profile = () => {
   const [todos,setTodos] = useState([])  
   const [title, setTitle] = useState("")
   const [description, setDescription]=useState("")
-  const [dueDate, setDueDate]=useState(Date)
-  const [status,setStatus]=useState(false)
-  
+  const [dueDate, setDueDate]=useState(Date)  
 
-  useEffect(()=>{
 
-  const fetchData=async()=>{
-    const data = await getDetails()
-    if(data)
-      { 
+  //useEffect hook can run twice in development mode because React 18's strict mode intentionally
+  //  double-invokes certain lifecycle methods and hooks to help identify side effects and other potential issues.
+  // we use didFetch as a flag to prevent it from running again, which will stop giving us two alerts
+   let didFetch = false;
+
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+  }
+
+  useEffect(() => {
+    // let didFetch = false;
+
+    const fetchData = async () => {
+      const data = await getDetails()
+      if (data && !didFetch) { 
+        didFetch = true;
         console.log(data)
         setCurrentUser(data)
         setTodos(data.todos)
-      } 
-  }
 
-  fetchData()
-  },[])
- 
+        data.todos.forEach((todo) => {
+          const todoDate = new Date(todo.dueDate)
+          if (isToday(todoDate)) {
+            alert(`${todo.title} is to be completed by today`)
+            console.log("s: ", todoDate, "t: ", new Date())
+          }
+        })
+      } 
+    }
+    fetchData()
+  }, [])
+   
+  
+
 
   const handleTodos=async ()=>{
     if(title===""||description===""||dueDate==="")
@@ -103,7 +124,10 @@ const handleStatus=async(index)=>{
         }
   
 }
+
+
     return (
+ 
       currentUser && (
         <div className='bg-indigo-500 h-full w-full p-2 xs:w-2/3 sm:w-1/2 md:w-2/5 lg:w-1/4 xl:w-1/5 '>        
 
@@ -151,8 +175,6 @@ const handleStatus=async(index)=>{
 
                   </div>    
               </div>
-
-
               
                 <button 
                 className='transition ease-in-out delay-100 hover:scale-110  text-xl duration-300
@@ -166,11 +188,6 @@ const handleStatus=async(index)=>{
                 {
                   todos.map((todo, index) => {
                     const localDate = new Date(todo.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
-                    if(todo.dueDate===new Date())
-                      {
-                        alert(`${todo.title} is to be completed by today`)
-                      }
-                    // ()=>setStatus(todo.completed)
                     return (
                       <div key={index} className='flex flex-col my-8
                       w-4/5 border-2 rounded-2xl mx-2 border-zinc rounded-lg p-2'>
@@ -181,7 +198,6 @@ const handleStatus=async(index)=>{
                           text-2xl font-extrabold hover:cursor-pointer' onClick={()=>removeTodo(index)}>X</span>
                         </div>
                         <h2 className="font-bold text-3xl">{todo.title}</h2>
-                     
                         <p className='mt-2 text-xl font-light'>{todo.description}</p>
                           <input 
                             type='checkbox'
@@ -199,6 +215,7 @@ const handleStatus=async(index)=>{
         
         </div>
       )
+
     );
   };
   

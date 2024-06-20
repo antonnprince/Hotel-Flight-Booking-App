@@ -15,12 +15,18 @@ const Login = () => {
     password: "",
   }); 
 
-  const handleSubmitEvent = (e) => {  
+  const handleSubmitEvent = async(e) => {  
   e.preventDefault();
     if (input.username !== "" || input.password !== "")
     {   
-        auth.login(input) 
-        return
+       const res = await auth.login(input) 
+        toast.error(res,{
+          position: "top-center", 
+          autoClose: 2000, 
+          pauseOnHover:false,
+          theme:"dark"
+        })
+       return
     }
     else
     toast.error("Enter all details",{
@@ -82,6 +88,7 @@ const Login = () => {
         </Link>
         </button>
     </div>
+    <ToastContainer/>
     </form>
   );
 };

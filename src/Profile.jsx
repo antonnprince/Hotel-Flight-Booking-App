@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { Navigate } from 'react-router-dom'
 import axios from 'axios'
-
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Profile = () => {  
   const auth=useAuth()
@@ -34,11 +35,6 @@ const Profile = () => {
   const [dueDate, setDueDate]=useState(Date)  
 
 
-  //useEffect hook can run twice in development mode because React 18's strict mode intentionally
-  //  double-invokes certain lifecycle methods and hooks to help identify side effects and other potential issues.
-  // we use didFetch as a flag to prevent it from running again, which will stop giving us two alerts
-   let didFetch = false;
-
   const isToday = (date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -47,20 +43,22 @@ const Profile = () => {
   }
 
   useEffect(() => {
-    // let didFetch = false;
 
     const fetchData = async () => {
       const data = await getDetails()
-      if (data && !didFetch) { 
-        didFetch = true;
+      if (data) {  
         console.log(data)
         setCurrentUser(data)
         setTodos(data.todos)
 
         data.todos.forEach((todo) => {
           const todoDate = new Date(todo.dueDate)
-          if (isToday(todoDate)) {
-            alert(`${todo.title} is to be completed by today`)
+          if (isToday(todoDate) && !todo.completed) {
+            toast.info(`${todo.title} is due today!`, {
+              position: "top-center", 
+              autoClose: 2000, 
+              pauseOnHover:false,
+            });
             console.log("s: ", todoDate, "t: ", new Date())
           }
         })
@@ -70,8 +68,6 @@ const Profile = () => {
   }, [])
    
   
-
-
   const handleTodos=async ()=>{
     if(title===""||description===""||dueDate==="")
        { 
@@ -124,7 +120,6 @@ const handleStatus=async(index)=>{
         }
   
 }
-
 
     return (
  
@@ -212,7 +207,7 @@ const handleStatus=async(index)=>{
                 }
 
           </div>
-        
+          <ToastContainer/>
         </div>
       )
 

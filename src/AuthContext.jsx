@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useContext,createContext } from "react";
 import {useNavigate} from "react-router-dom"
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify'
+
 
 const AuthContext = createContext()
 
@@ -10,6 +10,7 @@ export const AuthProvider=({children})=>{
 
     const API_KEY="et4dZOAoHASe1IUb5F3AjWenAmZ9AY5j"
     const API_SECRET="dqJwpL2Cqnsampuy"
+
     const [user,setUser]=useState({})
     const navigate=useNavigate()
 
@@ -46,19 +47,14 @@ export const AuthProvider=({children})=>{
                     const result = await getToken(API_KEY,API_SECRET)
                     data["token"]=result.data.access_token
                     setUser(data)
-                    console.log(user)
+                    console.log(data)
                     navigate('/profile')
                 }
                else
                {
-                toast.error(res.data.message,{
-                    position: "top-center", 
-                    autoClose: 2000, 
-                    pauseOnHover:false,
-                    theme:"dark"
-                  })
+                return res.data.message
                }
-            return res
+            return 
         } 
         catch (error) 
         {
@@ -75,8 +71,9 @@ export const AuthProvider=({children})=>{
     return(
         <AuthContext.Provider value={{login,logout,user}}>
             {children}
-            <ToastContainer/>
+            
         </AuthContext.Provider>
+        
     )
 }
 

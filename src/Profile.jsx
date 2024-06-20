@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
-import {useNavigate} from 'react-router-dom'
+import {Navigate, useNavigate} from 'react-router-dom'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const Profile = () => {  
   const auth=useAuth()
-  const user= auth.user
+  const user=auth.user
+
   const navigate=useNavigate()
 
   const [currentUser,setCurrentUser]=useState()  
@@ -15,8 +16,7 @@ const Profile = () => {
   const [title, setTitle] = useState("")
   const [description, setDescription]=useState("")
   const [dueDate, setDueDate]=useState(Date)  
-
-  
+   
   const getDetails = async()=>
     { 
         try 
@@ -37,19 +37,24 @@ const Profile = () => {
            date.getFullYear() === today.getFullYear();
   }
 
-  useEffect(() => {    
-    
-    if(!auth?.user)
-      { 
-        navigate("/login")
-        return
-      } 
-
+useEffect(() => {    
+        
+      // if(!user?.email)
+      //   { 
+      //     // console.log("auth: ",auth)
+      //     return <Navigate to="/login"/>
+      //   } 
       const fetchData = async () => {
       const data = await getDetails()
       if (data) 
       {  
         console.log(data)
+        
+      if(data.message==="User not found")
+        {
+          navigate('/login')
+        }
+          
         setCurrentUser(data)
         setTodos(data.todos)
 
@@ -69,7 +74,7 @@ const Profile = () => {
     }
 
     fetchData()
-  }, [])
+  }, [user])
    
   
   const handleTodos=async ()=>{

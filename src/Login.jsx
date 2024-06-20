@@ -3,6 +3,9 @@ import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axios from 'axios'
+import { ToastContainer, toast } from 'react-toastify'
+
+
 
 const Login = () => {
   
@@ -20,8 +23,15 @@ const Login = () => {
         return
     }
     else
-    alert("Enter all details")
+    toast.error("Enter all details",{
+      position: "top-center", 
+      autoClose: 2000, 
+      pauseOnHover:false,
+      theme:"dark"
+    })
   };
+
+ 
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -61,7 +71,10 @@ const Login = () => {
 
 
     <div className="">
-      <button className="p-2 m-4 bg-[#60A5FA] rounded-xl">Submit</button>
+      <button 
+      className="p-2 m-4 bg-[#60A5FA] rounded-xl">
+        Submit
+      </button>
       
       <button className="p-2 bg-[#60A5FA] rounded-xl">
         <Link to="/register">

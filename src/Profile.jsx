@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
-import { Navigate } from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -8,13 +8,15 @@ import 'react-toastify/dist/ReactToastify.css'
 const Profile = () => {  
   const auth=useAuth()
   const user= auth.user
-    
-  if(!auth?.user)
-    { 
-      return <Navigate to="/login"/>
-    } 
+  const navigate=useNavigate()
 
+  const [currentUser,setCurrentUser]=useState()  
+  const [todos,setTodos] = useState([])  
+  const [title, setTitle] = useState("")
+  const [description, setDescription]=useState("")
+  const [dueDate, setDueDate]=useState(Date)  
 
+  
   const getDetails = async()=>
     { 
         try 
@@ -28,13 +30,6 @@ const Profile = () => {
         }
   }
 
-  const [currentUser,setCurrentUser]=useState()  
-  const [todos,setTodos] = useState([])  
-  const [title, setTitle] = useState("")
-  const [description, setDescription]=useState("")
-  const [dueDate, setDueDate]=useState(Date)  
-
-
   const isToday = (date) => {
     const today = new Date();
     return date.getDate() === today.getDate() &&
@@ -42,28 +37,37 @@ const Profile = () => {
            date.getFullYear() === today.getFullYear();
   }
 
-  useEffect(() => {
+  useEffect(() => {    
+    
+    if(!auth?.user)
+      { 
+        navigate("/login")
+        return
+      } 
 
-    const fetchData = async () => {
+      const fetchData = async () => {
       const data = await getDetails()
-      if (data) {  
+      if (data) 
+      {  
         console.log(data)
         setCurrentUser(data)
         setTodos(data.todos)
 
         data.todos.forEach((todo) => {
           const todoDate = new Date(todo.dueDate)
-          if (isToday(todoDate) && !todo.completed) {
+
+          if (isToday(todoDate) && !todo.completed) 
+          {
             toast.info(`${todo.title} is due today!`, {
               position: "top-center", 
               autoClose: 2000, 
               pauseOnHover:false,
-            });
-            console.log("s: ", todoDate, "t: ", new Date())
+            }); 
           }
         })
       } 
     }
+
     fetchData()
   }, [])
    
@@ -82,7 +86,7 @@ const Profile = () => {
             title: title,
             description:description,
             dueDate:dueDate,
-            completed:status
+            completed:false
         }
     }
 
@@ -90,7 +94,7 @@ const Profile = () => {
         title: title,
         description:description,
         dueDate:dueDate,
-        completed:status
+        completed:false 
     }]))     
 
     const res = await axios.post("http://localhost:3001/add_todo", newTodo)
@@ -207,11 +211,11 @@ const handleStatus=async(index)=>{
                 }
 
           </div>
-          <ToastContainer/>
+          <ToastContainer/> 
         </div>
       )
 
     );
   };
   
-  export default Profile;
+  export default Profile; 

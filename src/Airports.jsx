@@ -9,6 +9,7 @@ const Airports = () => {
     console.log(user)
     const [data,setData]=useState()
     const [dictionary, setDictionary] =useState()
+
     const getResults = async () => 
     {
         try {
@@ -23,11 +24,21 @@ const Airports = () => {
           setData(res.data.data)
           setDictionary(res.data.dictionaries.carriers)
           console.log(res.data.data)
+          console.log(dictionary)
         } catch (error) {
           console.error(error);
         }
       };
     
+
+      const getCarrier=(code)=>{
+        if(dictionary)
+        {  
+          const res = Object.keys(dictionary).find(key=> key===code)
+          return dictionary[res]
+        }
+      }
+   
   return (
   <div>
       <button 
@@ -35,7 +46,9 @@ const Airports = () => {
       className='bg-indigo-400 m-8 text-xl p-2 rounded-full'>
           Get Flights
       </button>
-
+      <button onClick={()=>getCarrier("CA")}>
+        Carrier
+      </button>
       <div className='bg-indigo-500 p-4 rounded-xl flex-col space-y-12 mx-auto'>
         { 
           data&&
@@ -49,8 +62,10 @@ const Airports = () => {
                           {
                             res=item.arrival
                           }
-                        
                     })
+
+                    const airlines = getCarrier(item.validatingAirlineCodes[0])
+                      console.log(airlines)
                     return(         
                           <div className='mx-auto text-xl font-semibold ' key={index}>
                             {index + 1}
@@ -65,6 +80,7 @@ const Airports = () => {
                               
                               <h2>Total Duration: {item.itineraries[0].duration.substring(2).toLowerCase()} </h2>
                               <h2>Fare: ₹ {item.price.total.slice(0,-3)}</h2>
+                               <h2>{airlines}</h2> 
                           </div>                      
                       )
                     }

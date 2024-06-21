@@ -14,7 +14,7 @@ const Airports = () => {
     {
         try {
           const res = await axios.get(
-"https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=DXB&destinationLocationCode=SYD&departureDate=2024-06-22&nonStop=false&adults=1&children=0&infants=0&nonStop=true&max=25&currencyCode=INR",
+"https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=DXB&destinationLocationCode=BLR&departureDate=2024-06-22&nonStop=false&adults=1&children=0&infants=0&nonStop=true&max=25&currencyCode=INR",
             {
               headers: {
                 'Authorization': `Bearer ${user.token}`,
@@ -24,19 +24,18 @@ const Airports = () => {
           setData(res.data.data)
           setDictionary(res.data.dictionaries.carriers)
           console.log(res.data.data)
-          console.log(dictionary)
-        } catch (error) {
+          console.log(res.data.dictionaries.carriers)
+        } 
+        catch (error) 
+        {
           console.error(error);
         }
       };
     
 
       const getCarrier=(code)=>{
-        if(dictionary)
-        {  
           const res = Object.keys(dictionary).find(key=> key===code)
           return dictionary[res]
-        }
       }
    
   return (
@@ -46,41 +45,36 @@ const Airports = () => {
       className='bg-indigo-400 m-8 text-xl p-2 rounded-full'>
           Get Flights
       </button>
-      <button onClick={()=>getCarrier("CA")}>
-        Carrier
-      </button>
-      <div className='bg-indigo-500 p-4 rounded-xl flex-col space-y-12 mx-auto'>
+      
         { 
           data&&
               ( 
                   data.map((item,index)=>{
                     let res
                     const obj = item.itineraries[0].segments
-                    
                     obj.forEach((item )=>{
-                        if(item.arrival.iataCode==="SYD")
+                        if(item.arrival.iataCode==="BLR")
                           {
                             res=item.arrival
                           }
                     })
-
                     const airlines = getCarrier(item.validatingAirlineCodes[0])
-                      console.log(airlines)
                     return(         
-                          <div className='mx-auto text-xl font-semibold ' key={index}>
-                            {index + 1}
-                              <div>
-                                <h2>{item.itineraries[0].segments[0].departure.at.substring(11).slice(0,-3)}</h2>  
-                                <h4> {item.itineraries[0].segments[0].departure.iataCode} </h4>
-                              </div>
-                              <div>
-                              <h2>{res.at.substring(11).slice(0,-3)}</h2>
-                                <h4> {res.iataCode} </h4>
+                          <div className='mx-4 text-xl flex flex-row space-x-8 font-semibold text-white bg-neutral-500 my-4 rounded-xl p-4 '
+                           key={index}>
+                            <h2 className='my-auto'>{airlines}</h2>
+                              <div className='flex flex-col my-2'>
+                                <h2 className='mr-24'>{item.itineraries[0].segments[0].departure.at.substring(11).slice(0,-3)}</h2>  
+                                <h4 className='mr-24'>{item.itineraries[0].segments[0].departure.iataCode} </h4>
+                                <h2 className='text-right'>{item.itineraries[0].duration.substring(2).toLowerCase()} </h2>
                               </div>
                               
-                              <h2>Total Duration: {item.itineraries[0].duration.substring(2).toLowerCase()} </h2>
-                              <h2>Fare: ₹ {item.price.total.slice(0,-3)}</h2>
-                               <h2>{airlines}</h2> 
+                              <div className='flex flex-col my-2'>
+                                <h2 >{res.at.substring(11).slice(0,-3)}</h2>
+                                <h4 >{res.iataCode} </h4>
+                              </div>
+                                <h2 className='text-3xl my-auto'>₹{item.price.total.slice(0,-3)}</h2>
+                               
                           </div>                      
                       )
                     }
@@ -89,7 +83,6 @@ const Airports = () => {
         }
     </div>
   
-  </div> 
   )
 }
 

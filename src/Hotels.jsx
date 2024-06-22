@@ -4,9 +4,10 @@ import { useAuth } from './AuthContext'
 import room from "./room.jpg"
 
 const Hotels = () => {
-  const API_KEY = "470f24fdfaa0e1078cc6433c8eafde5ba8767b81e09fd35146acae47ac238988"
-  const auth = useAuth()
-  const user = auth.user
+  //  const API_KEY = "470f24fdfaa0e1078cc6433c8eafde5ba8767b81e09fd35146acae47ac238988"
+  // const auth = useAuth()
+  const  user = JSON.parse(localStorage.getItem("user"))
+  console.log(user)
 
   const [hotels, setHotels] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -17,7 +18,7 @@ const Hotels = () => {
     try {
       const res = await axios.get("https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city?cityCode=COK&radius=25&radiusUnit=KM&amenities=SWIMMING_POOL,SPA,FITNESS_CENTER,AIR_CONDITIONING,CASINO,JACUZZI,MASSAGE,BAR,MINIBAR&hotelSource=ALL", {
         headers: {
-          'Authorization': `Bearer ${user.token}`,
+          'Authorization': `Bearer ${user["token"]}`,
         }
       })
       console.log(res.data)
@@ -26,11 +27,11 @@ const Hotels = () => {
       console.error("Failed to fetch hotels", error)
     }
   }
-
+  
   useEffect(() => {
     getHotels()
   }, [])
-
+  
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [currentPage])
@@ -83,12 +84,12 @@ const Hotels = () => {
                       <p className="text-sm md:text-lg text-gray-500 mt-5">Price</p>
                     </div>
                     <div>
-                      <p className="text-lg md:text-xl ">
+                      <p className="text-sm md:text-lg ">
                         {
                           hotel.amenities.map((item, index) => {
                             const res = getWord(item)
                             return (
-                              <h2 key={index}>{res}</h2>
+                              <h2 key={index} className='text-center'>{res}</h2>
                             )
                           })
                         }

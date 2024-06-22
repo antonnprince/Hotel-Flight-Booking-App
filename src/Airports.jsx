@@ -27,8 +27,8 @@ const Airports = () => {
         );
         setData(res.data.data)
         setDictionary(res.data.dictionaries.carriers)
-        console.log(res.data.data)
-        console.log(res.data.dictionaries.carriers)
+         console.log(res.data.data)
+         console.log(res.data.dictionaries.carriers)
       } 
       catch (error) 
       {
@@ -71,17 +71,21 @@ const Airports = () => {
               ( 
                   data.map((item,index)=>{
                     let res
+                    let airlines
                     const obj = item.itineraries[0].segments
                     obj.forEach((item )=>{
                         if(item.arrival.iataCode==="BLR")
                           {
                             res=item.arrival
                           }
-                          // const airlines = getCarrier(item.validatingAirlineCodes[0])
                     })
+                     airlines = getCarrier(item.validatingAirlineCodes[0])
                   return (
                       <div key={index} className="flex flex-col md:flex-row items-center border-b border-gray-200 py-4 px-2 mt-10 cursor-pointer hover:bg-slate-200">
-                        <img src={flight} alt="Flight Logo" className="w-16 md:w-20 h-16 md:h-20 object-contain mr-4 ml-10" />
+                        <div className='flex flex-col'>
+                          <img src={flight} alt="Flight Logo" className="w-16 md:w-20 h-16 md:h-20 object-contain mr-4 ml-10" />
+                          <h1 className='mx-auto font-bold'>{airlines}</h1>
+                        </div>
                         <div className="flex-1 mt-4 md:mt-0 ml-10">
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                             <div>

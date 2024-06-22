@@ -2,50 +2,70 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuth } from './AuthContext'
 import flight from './fligt.png'
-
+import { FaPlaneDeparture } from 'react-icons/fa6';
+import { MdFlightLand } from 'react-icons/md';
 const Airports = () => {
-
-    const auth = useAuth()
-    const user = auth.user
-    console.log(user)
-    const [data,setData]=useState()
-    const [dictionary, setDictionary] =useState()
-
-    const getResults = async () => 
-    {
-        try {
-          const res = await axios.get(
+  
+  const user = JSON.parse(localStorage.getItem("user"))
+  console.log(user)
+  const [data,setData]=useState([])
+  const [dictionary, setDictionary] =useState()
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  
+  const flightsPerPage = 6;
+  const getResults = async () => 
+  {
+      try {
+        const res = await axios.get(
 "https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=DXB&destinationLocationCode=BLR&departureDate=2024-06-22&nonStop=false&adults=1&children=0&infants=0&nonStop=true&max=25&currencyCode=INR",
-            {
-              headers: {
-                'Authorization': `Bearer ${user.token}`,
-              }
+          {
+            headers: {
+              'Authorization': `Bearer ${user.token}`,
             }
-          );
-          setData(res.data.data)
-          setDictionary(res.data.dictionaries.carriers)
-          console.log(res.data.data)
-          console.log(res.data.dictionaries.carriers)
-        } 
-        catch (error) 
-        {
-          console.error(error);
-        }
-      };
-    
-
-      const getCarrier=(code)=>{
-          const res = Object.keys(dictionary).find(key=> key===code)
-          return dictionary[res]
+          }
+        );
+        setData(res.data.data)
+        setDictionary(res.data.dictionaries.carriers)
+        console.log(res.data.data)
+        console.log(res.data.dictionaries.carriers)
+      } 
+      catch (error) 
+      {
+        console.error(error);
       }
-   
+    };
+    
+  const getCarrier=(code)=>{
+    const res = Object.keys(dictionary).find(key=> key===code)
+    return dictionary[res]
+}
+
+  useEffect(()=>{
+    getResults()
+  },[])
+
+  useEffect(()=>{
+    window.scrollTo({top:0, behavior:'smooth'})
+  },[currentPage])
+
+  const indexOfLastFlight = currentPage * flightsPerPage;
+  const indexOfFirstFlight = indexOfLastFlight - flightsPerPage;
+  const currentFlights = data.slice(indexOfFirstFlight, indexOfLastFlight);
+
+  const totalPages = Math.ceil(data.length / flightsPerPage);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+  };
   return (
-  <div>
-      <button 
-      onClick={getResults}
-      className='bg-indigo-400 m-8 text-xl p-2 rounded-full'>
-          Get Flights
-      </button>
+    <div className="flex justify-center items-center w-full mt-8 px-4">
+      <div className="w-full md:w-3/4 lg:w-[80%] bg-white shadow-lg rounded-lg p-4 text-center mt-5">
+       <h2 className="text-2xl md:text-4xl font-bold font-mono mb-4 text-indigo-500">Select a Flight</h2>
         { 
           data&&
               ( 
@@ -57,44 +77,64 @@ const Airports = () => {
                           {
                             res=item.arrival
                           }
+                          // const airlines = getCarrier(item.validatingAirlineCodes[0])
                     })
-                    const airlines = getCarrier(item.validatingAirlineCodes[0])
-                    return(         
-                          <div className='mx-4 text-xl flex flex-row space-x-8 font-semibold text-slate-950 bg-stone-50
-                          border-2 border-stone-300 hover:border-stone-500 hover:cursor-pointer shadow-xl
-                          my-4 rounded-xl p-4 w-auto '
-                           key={index}>
-                           
-                              <div className='flex flex-col space-y-2'>
-                                <img src={flight} className=' w-8 h-8 sm:w-12 sm:h-12  md:w-24 md:h-24'/>
-                                <h2 className='m-auto font-semibold text-lg md:text-lg'>{airlines}</h2>
+                  return (
+                      <div key={index} className="flex flex-col md:flex-row items-center border-b border-gray-200 py-4 px-2 mt-10 cursor-pointer hover:bg-slate-200">
+                        <img src={flight} alt="Flight Logo" className="w-16 md:w-20 h-16 md:h-20 object-contain mr-4 ml-10" />
+                        <div className="flex-1 mt-4 md:mt-0 ml-10">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+                            <div>
+                              <p className="text-xl md:text-2xl font-semibold">{item.itineraries[0].segments[0].departure.at.substring(11).slice(0,-3)}</p>
+                            <div className='flex gap-5 items-center justify-center mt-5'>
+          
+                              <p className="text-sm md:text-lg text-gray-500">Departure</p>
+                              <FaPlaneDeparture className='text-gray-500'/> 
+                            </div>
+                            </div>
+                            <div>
+                              <p className="text-xl md:text-2xl font-semibold">{res.at.substring(11).slice(0,-3)}</p>
+                              <div className='flex gap-5 items-center justify-center mt-5'>
+                              <p className="text-sm md:text-lg text-gray-500">Arrival</p>
+                              <MdFlightLand className='text-gray-500 text-xl' /> 
                               </div>
-
-
-                              <div className='flex flex-row space-x-2 md:space-x-8 my-auto lg:space-x-12'>
-                                  <div className='flex flex-col text-2xl '>
-                                    <h2 className='font-extrabold text-2xl lg:text-3xl mx-auto '>{item.itineraries[0].segments[0].departure.at.substring(11).slice(0,-3)}</h2>  
-                                    <h4 className='text-lg lg:text-xl mx-auto'>{item.itineraries[0].segments[0].departure.iataCode} </h4>
-                                  </div>
-                                  <h2 className='text-lg lg:text-lg font-normal mt-20'>{item.itineraries[0].duration.substring(2).toLowerCase()} </h2>
-                                  <div className=' flex flex-col mx-auto'>
-                                    <h2 className='font-extrabold text-2xl lg:text-3xl'>{res.at.substring(11).slice(0,-3)}</h2>
-                                    <h4 className='text-lg lg:text-xl mx-auto'>{res.iataCode} </h4>
-                                  </div>
-                              </div>
-
-                              <div className='flex flex-col my-auto'>
-                                <h2 className='text-2xl lg:text-4xl '>₹{item.price.total.slice(0,-3)}</h2>
-                                <h2 className='font-normal text-lg mx-auto'>Per person</h2>
-                              </div>   
-                          </div>                   
-                      )
-                    }
+                            </div>
+                            <div>
+                              <p className="text-xl md:text-2xl font-semibold">₹{item.price.total.slice(0,-3)}</p>
+                              <p className="text-sm md:text-lg text-gray-500 mt-5">Total Price</p>
+                            </div>
+                            <div>
+                              <p className="text-xl md:text-2xl font-semibold">{item.itineraries[0].duration.substring(2).toLowerCase()}</p>
+                              <p className="text-sm md:text-lg text-gray-500 mt-5">Duration</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>               
+                  )}
                   )
               )
         }
-    </div>
-  
+        <div className="flex justify-between items-center mt-8 mb-16">
+            <button
+              className={`px-4 py-2 rounded-md  ${currentPage === 1 ? 'bg-gray-200 text-gray-400 ' : 'bg-indigo-500 text-white hover:bg-indigo-700'}`}
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <span className="text-sm md:text-lg">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className={`px-4 py-2 rounded-md h-10 w-20  ${currentPage === totalPages ? 'bg-gray-200 text-gray-400' : 'bg-indigo-500 text-white hover:bg-indigo-700'}`}
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+        </div>
   )
 }
 
